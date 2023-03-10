@@ -2,7 +2,7 @@
 from sklearn.ensemble import RandomForestRegressor
 import numpy as np
 import random
-from tool import setup
+import pickle
 
 random.seed(20)
 
@@ -48,12 +48,15 @@ def rf(variables, input):
                               'BLK', 'TOV', 'PTS']]]
 
     # create model with RandomForestRegressor
-    svm_model = RandomForestRegressor(n_estimators=100, random_state=20)
-    svm_model.fit(X, y)
+    rf_model = RandomForestRegressor(n_estimators=100, random_state=20)
+    rf_model.fit(X, y)
+
+    pickle.dump(rf_model, open('rf_model.sav', 'wb'))
 
     # Running Predictions
-    predictions = svm_model.predict(input)
+    predictions = rf_model.predict(input)
     # accuracy = [predictions[index][0] - y_test[index][0] for index in range(len(y_test))]
+
     return predictions
 
 

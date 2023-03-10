@@ -24,5 +24,13 @@
    3. `readying_data.py` is the file that transforms the data to what is comfortable for machine learning
    4. `learning.py` is the file that contains the random forest model.
 
-3. Next feature to be added is bulk upload.
+3. Updated dataset to include games between 03/07-03/09
+
+4. A load ml model file functionality was added to avoid training after every input
+   1. `rf_model.sav' is the file for the model, if the program detects that it is present then it will skip training and use current file
+   2. If it is not present then it will train a new instance of the model and save it into `rf_model.sav` for next time
+   3. *General Housekeeping* delete `rf_model.sav` if you add more data to the dataset since we have not added online learning to this model.
+      1. Will consider this in the future.
+
+5. Next feature to be added is bulk upload.
 

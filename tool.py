@@ -36,4 +36,4 @@ class setup:
             'PF': 4,
             'C': 5
         }
-        self.location = {0:'Home', 1:'At'}
+        self.location = {0:'Home', 1:'Away'}
