@@ -18,3 +18,11 @@
    6. convert *minutes played* to total seconds on field
    7. convert date to Month, Day, and Year columns
 
+2. Added files `readying_data.py`, `learning.py`, `tool.py`, `main.py`
+   1. `main.py` is the driver of the program. **As of right now, you have to enter player stats one by one**
+   2. `tool.py` is the file that holds all the variables needed for the program
+   3. `readying_data.py` is the file that transforms the data to what is comfortable for machine learning
+   4. `learning.py` is the file that contains the random forest model.
+
+3. Next feature to be added is bulk upload.
+

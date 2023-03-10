@@ -1,101 +1,23 @@
 """
 THIS IS THE FILE FOR READYING DATA
 """
-import pandas as pd
 import random
 
 random.seed(10)
 
-def ready_data():
-    data = pd.read_csv("cleaned_data.csv")
-    dnp = ["Inactive", "Did Not Dress", "Did Not Play", "Suspended", "Not With Team", "Player Suspended"]
 
-    player_id = {}
-    team_id = {
-                "ATL":1,
-                "BOS": 2,
-                "BRK": 3,
-                "CHO": 4,
-                "CHI": 5,
-                "CLE": 6,
-                "DAL": 7,
-                "DEN": 8,
-                "DET": 9,
-                "GSW": 10,
-                "HOU": 11,
-                "IND": 12,
-                "LAC": 13,
-                "LAL": 14,
-                "MEM": 15,
-                "MIA": 16,
-                "MIL": 17,
-                "MIN": 18,
-                "NOP": 19,
-                "NYK": 20,
-                "OKC": 21,
-                "ORL": 22,
-                "PHI": 23,
-                "PHO": 24,
-                "POR": 25,
-                "SAC": 26,
-                "SAS": 27,
-                "TOR": 28,
-                "UTA": 29,
-                "WAS": 30
-               }
-    delete = []
-    for index, row in data.iterrows():
+def ready_data(variables):
+    for index, row in variables.data.iterrows():
         # ignore row where player did not play
-        if str(row['Minutes Played']) in dnp:
-            delete.append(index)
+        if str(row['Minutes Played']) in variables.dnp:
+            variables.delete.append(index)
             continue
 
-        # Convert player names to player IDs
-        if row['Name'] == "":
-            break
-        elif row['Name'] not in player_id:
-            player_id.update({row['Name']: random.randint(0, 100000)})
-        data.at[index, 'Name'] = player_id[row['Name']]
-
-        # Convert team names to team IDs
-        data.at[index, 'Team'] = team_id[row['Team']]
-
-        # Convert opponent names to team IDs
-        # opponents are the same as team names, so we need to use the team_id dictionary and map to the opponent names
-        data.at[index, 'Opp'] = team_id[row['Opp']]
-
-        # Convert Position to respective number
-        # (PG:1, SG:2, SF:3, PF:4, C:5)
-        position_num = {
-                        'PG': 1,
-                        'SG': 2,
-                        'SF': 3,
-                        'PF': 4,
-                        'C': 5
-                            }
-        if row['Position'] == "":
-            break
-        data.at[index, 'Position'] = position_num[row['Position']]
-
-        # Convert Minutes played to total seconds
-        if row['Minutes Played'] == "":
-            break
-        elif row['Minutes Played'] in dnp:
-            pass
-        else:
-            data.at[index, 'Minutes Played'] = (int(data.at[index, 'Minutes Played'].split(':')[0]) * 60) + (int(data.at[index, 'Minutes Played'].split(':')[1]) * 60)
-
-        # Convert Date to Month, Day, and Year
-        if row['Date'] == "":
-            break
-        temp = data.at[index, 'Date'].split("/")
-        data.at[index, 'Month'] = temp[0]
-        data.at[index, 'Date'] = temp[1]
-        data.at[index, 'Year'] = temp[2]
+        variables = alter_row(variables=variables, index=index, row=row)
 
     # Delete rows where players haven't played
-    data.drop(index=delete)
-    # Return finalized data
+    variables.data.drop(index=variables.delete)
+    # Make sure the data types are numerical for easier machine learning
     convert_dict = {
         'Name': int,
         'Position': int,
@@ -121,6 +43,46 @@ def ready_data():
         'TOV': float,
         'PTS': float
     }
-    data = data.astype(convert_dict)
-    return data
-print(ready_data())
+    variables.data = variables.data.astype(convert_dict)
+
+    # Return finalized data and also update reverse map variables while we are at it
+    # reverse_map will return original variables
+    return reverse_map(variables)
+
+
+def reverse_map(variables):
+    # reverse mapping ids
+    variables.id_team = {value: key for key, value in variables.team_id.items()}
+    variables.id_player = {value: key for key, value in variables.player_id.items()}
+
+    # return reverse mapped
+    return variables
+
+
+def alter_row(variables, index, row):
+    # Convert player names to player IDs
+    if row['Name'] not in variables.player_id:
+        variables.player_id.update({row['Name']: random.randint(0, 100000)})
+    variables.data.at[index, 'Name'] = variables.player_id[row['Name']]
+
+    # Convert team names to team IDs
+    variables.data.at[index, 'Team'] = variables.team_id[row['Team']]
+
+    # Convert opponent names to team IDs
+    # opponents are the same as team names, so we need to use the team_id dictionary and map to the opponent names
+    variables.data.at[index, 'Opp'] = variables.team_id[row['Opp']]
+
+    # Convert Position to respective number
+    # (PG:1, SG:2, SF:3, PF:4, C:5)
+    variables.data.at[index, 'Position'] = variables.position_num[row['Position']]
+
+    # Convert Minutes played to total seconds
+    variables.data.at[index, 'Minutes Played'] = (int(variables.data.at[index, 'Minutes Played'].split(':')[0]) * 60) + (int(variables.data.at[index, 'Minutes Played'].split(':')[1]) * 60)
+
+    # Convert Date to Month, Day, and Year
+    temp = variables.data.at[index, 'Date'].split("/")
+    variables.data.at[index, 'Month'] = temp[0]
+    variables.data.at[index, 'Date'] = temp[1]
+    variables.data.at[index, 'Year'] = temp[2]
+
+    return variables
